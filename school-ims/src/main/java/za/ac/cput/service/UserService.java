@@ -35,6 +35,9 @@ public class UserService implements IService<User, Long> {
         }
         return null;
     }
+    public User getUser(String email){
+        return userRepository.findUserByEmail(email);
+    }
 
     @Override
     public boolean delete(Long id) {
