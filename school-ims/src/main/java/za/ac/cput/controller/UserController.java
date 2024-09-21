@@ -8,6 +8,7 @@ import za.ac.cput.domain.User;
 import za.ac.cput.service.UserService;
 
 import java.util.List;
+import java.util.Map;
 
 // Build objects using Factory to utilize Helper classes;
 
@@ -22,10 +23,18 @@ public class UserController {
         this.userService = userService;
     }
 
-    @GetMapping("/login/{email}")
-    public ResponseEntity<User> getUserByEmail(@PathVariable String email){
-        User user = userService.getUser(email);
-        return new ResponseEntity<>(user, HttpStatus.OK);
+    @PostMapping("/login")
+    public ResponseEntity<User> login(@RequestBody Map<String, String> credentials) {
+        String email = credentials.get("email");
+        String password = credentials.get("password");
+
+        User user = userService.getUser(email, password);
+
+        if (user != null) {
+            return new ResponseEntity<>(user, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
     }
     @PostMapping("/create")
     public ResponseEntity<User> createUser(@RequestBody User user) {

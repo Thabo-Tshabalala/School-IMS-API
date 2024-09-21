@@ -35,8 +35,8 @@ public class UserService implements IService<User, Long> {
         }
         return null;
     }
-    public User getUser(String email){
-        return userRepository.findUserByEmail(email);
+    public User getUser(String email, String password) {
+        return userRepository.findUserByEmailAndPassword(email, password);
     }
 
     @Override

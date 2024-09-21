@@ -7,6 +7,6 @@ import za.ac.cput.domain.User;
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
 
-    User findUserByEmail(String username);
+    User findUserByEmailAndPassword(String username, String password);
 
 }
