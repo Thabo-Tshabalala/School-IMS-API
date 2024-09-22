@@ -9,6 +9,7 @@ import za.ac.cput.service.UserService;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 // Build objects using Factory to utilize Helper classes;
 
@@ -24,33 +25,58 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<User> login(@RequestBody Map<String, String> credentials) {
+    public ResponseEntity<?> login(@RequestBody Map<String, String> credentials) {
         String email = credentials.get("email");
         String password = credentials.get("password");
+
+        // Check for null or empty credentials
+        if (email == null || password == null || email.isEmpty() || password.isEmpty()) {
+            return new ResponseEntity<>("Email and password must be provided.", HttpStatus.BAD_REQUEST);
+        }
 
         User user = userService.getUser(email, password);
 
         if (user != null) {
             return new ResponseEntity<>(user, HttpStatus.OK);
         } else {
-            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity<>("Invalid email or password.", HttpStatus.UNAUTHORIZED);
         }
     }
+//    @GetMapping("/check/{email}")
+//    public ResponseEntity<User> checkUserByEmail(@PathVariable String email) {
+//        Optional<User> userOptional = userService.findSpecificUserByEmail(email);
+//
+//        if (userOptional.isPresent()) {
+//            return new ResponseEntity<>(userOptional.get(), HttpStatus.OK);
+//        } else {
+//            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+//        }
+//    }
+
+
     @PostMapping("/create")
     public ResponseEntity<User> createUser(@RequestBody User user) {
         try {
+            // Check if a user with the same email already exists
+            Optional<User> existingUser = userService.findSpecificUserByEmail(user.getEmail());
+            if (existingUser.isPresent()) {
+                return ResponseEntity.status(HttpStatus.CONFLICT).body(null); // 409 Conflict
+            }
+
             User createdUser = userService.create(user);
-            return new ResponseEntity<>(createdUser, HttpStatus.CREATED);
+            return ResponseEntity.status(HttpStatus.CREATED).body(createdUser);
         } catch (IllegalArgumentException e) {
-            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+            return ResponseEntity.badRequest().body(null); // 400 Bad Request
         }
     }
 
-//    @GetMapping("/update/{mobileNumber}")
-//    public ResponseEntity<User> getUserByMobileNumber(@PathVariable String mobileNumber){
-//        User user = userService.getUserByMobileNumber(mobileNumber);
-//        return new ResponseEntity<>(user, HttpStatus.OK);
-//    }
+
+
+    @PutMapping("/update")
+    public ResponseEntity<User> updateCustomer(@RequestBody User customer){
+        User updateCustomer = userService.update(customer);
+        return new ResponseEntity<>(updateCustomer, HttpStatus.OK);
+    }
 
 //    @GetMapping("/login/{email}/{password}")
 //    public ResponseEntity<Boolean> login(@PathVariable String email,
@@ -63,12 +89,6 @@ public class UserController {
     public ResponseEntity<List<User>> getAllUsers(){
         List<User> userList = userService.getAll();
         return new ResponseEntity<>(userList, HttpStatus.OK);
-    }
-
-    @PutMapping("/update")
-    public ResponseEntity<User> updateUser(@RequestBody User user){
-        User updatedUser = userService.update(user);
-        return new ResponseEntity<>(updatedUser, HttpStatus.OK);
     }
 
     @DeleteMapping("/delete/{userId}")

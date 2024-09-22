@@ -30,13 +30,24 @@ public class UserService implements IService<User, Long> {
 
     @Override
     public User update(User user) {
-        if (userRepository.existsById(user.getUserID())) {
-            return userRepository.save(user);
+        // Check if the user exists by ID
+        if (!userRepository.existsById(user.getUserID())) {
+            throw new IllegalStateException("User with Id " + user.getUserID() + " does not exist");
         }
-        return null;
+
+        // Update the user and save it
+        return userRepository.save(user);
     }
+
+
     public User getUser(String email, String password) {
         return userRepository.findUserByEmailAndPassword(email, password);
+    }
+    public Optional<User> findSpecificUserByEmail(String email) {
+        return userRepository.findUserByEmail(email);
+    }
+    public boolean existsByEmail(String email) {
+        return userRepository.findUserByEmail(email) != null; // Adjust based on your repository method
     }
 
     @Override
