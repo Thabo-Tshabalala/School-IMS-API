@@ -46,9 +46,7 @@ public class UserService implements IService<User, Long> {
     public Optional<User> findSpecificUserByEmail(String email) {
         return userRepository.findUserByEmail(email);
     }
-    public boolean existsByEmail(String email) {
-        return userRepository.findUserByEmail(email) != null; // Adjust based on your repository method
-    }
+
 
     @Override
     public boolean delete(Long id) {
