@@ -10,7 +10,7 @@ import java.util.Objects;
 public class Request implements Serializable {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.AUTO) // Changed to IDENTITY
     @Column(name = "request_id")
     private long requestId;
 
@@ -18,10 +18,10 @@ public class Request implements Serializable {
     @JoinColumn(name = "product_id", nullable = false)
     private Product product; // Relationship with Product
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private int quantity;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private String status; // eg 'Pending', 'Approved', 'Rejected'
 
     protected Request() {}
@@ -101,11 +101,6 @@ public class Request implements Serializable {
         private Product product;
         private int quantity;
         private String status;
-
-        public Builder setRequestId(long requestId) {
-            this.requestId = requestId;
-            return this;
-        }
 
         public Builder setProduct(Product product) {
             this.product = product;

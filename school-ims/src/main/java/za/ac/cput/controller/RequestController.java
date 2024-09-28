@@ -21,14 +21,22 @@ public class RequestController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<Request> createRequest(@RequestBody Request request) {
+    public ResponseEntity<?> createRequest(@RequestBody Request request) {
         try {
             Request createdRequest = requestService.create(request);
             return new ResponseEntity<>(createdRequest, HttpStatus.CREATED);
+        } catch (IllegalArgumentException e) {
+
+            System.err.println("Error creating request: " + e.getMessage());
+            return ResponseEntity.badRequest().body("Error: " + e.getMessage());
         } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+
+            System.err.println("Unexpected error: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("An unexpected error occurred.");
         }
     }
+
 
     @GetMapping("/read/{id}")
     public ResponseEntity<Request> getRequest(@PathVariable long id) {
