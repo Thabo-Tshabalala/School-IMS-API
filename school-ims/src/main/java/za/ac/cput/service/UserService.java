@@ -2,6 +2,7 @@ package za.ac.cput.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import za.ac.cput.domain.Admin;
 import za.ac.cput.domain.User;
 import za.ac.cput.repository.UserRepository;
 
@@ -56,6 +57,10 @@ public class UserService implements IService<User, Long> {
             return true;
         }
         return false;
+    }
+    public boolean verifyLogin(String email, String password) {
+        Optional<User> user = userRepository.findUserByEmail(email);
+        return user.isPresent() && user.get().getPassword().equals(password);
     }
 
     @Override
