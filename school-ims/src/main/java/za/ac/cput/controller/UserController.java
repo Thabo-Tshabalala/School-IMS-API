@@ -24,34 +24,12 @@ public class UserController {
         this.userService = userService;
     }
 
-    @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody Map<String, String> credentials) {
-        String email = credentials.get("email");
-        String password = credentials.get("password");
+    @GetMapping("/login/{email}")
+    public ResponseEntity<User> checkUserByEmail(@PathVariable String email) {
+        Optional<User> userOptional = userService.findSpecificUserByEmail(email);
 
-        // Check for null or empty credentials
-        if (email == null || password == null || email.isEmpty() || password.isEmpty()) {
-            return new ResponseEntity<>("Email and password must be provided.", HttpStatus.BAD_REQUEST);
-        }
-
-        User user = userService.getUser(email, password);
-
-        if (user != null) {
-            return new ResponseEntity<>(user, HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>("Invalid email or password.", HttpStatus.UNAUTHORIZED);
-        }
+        return userOptional.map(user -> new ResponseEntity<>(user, HttpStatus.OK)).orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
-//    @GetMapping("/check/{email}")
-//    public ResponseEntity<User> checkUserByEmail(@PathVariable String email) {
-//        Optional<User> userOptional = userService.findSpecificUserByEmail(email);
-//
-//        if (userOptional.isPresent()) {
-//            return new ResponseEntity<>(userOptional.get(), HttpStatus.OK);
-//        } else {
-//            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-//        }
-//    }
 
 
     @PostMapping("/create")

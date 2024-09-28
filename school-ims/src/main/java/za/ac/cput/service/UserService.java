@@ -45,7 +45,7 @@ public class UserService implements IService<User, Long> {
         return userRepository.findUserByEmailAndPassword(email, password);
     }
     public Optional<User> findSpecificUserByEmail(String email) {
-        return userRepository.findUserByEmail(email);
+        return userRepository.findByEmail(email);
     }
 
 
@@ -59,7 +59,7 @@ public class UserService implements IService<User, Long> {
         return false;
     }
     public boolean verifyLogin(String email, String password) {
-        Optional<User> user = userRepository.findUserByEmail(email);
+        Optional<User> user = userRepository.findByEmail(email);
         return user.isPresent() && user.get().getPassword().equals(password);
     }
 
