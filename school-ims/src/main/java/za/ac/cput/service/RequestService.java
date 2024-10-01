@@ -1,8 +1,12 @@
 package za.ac.cput.service;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import za.ac.cput.domain.Product;
 import za.ac.cput.domain.Request;
+import za.ac.cput.repository.ProductRepository;
 import za.ac.cput.repository.RequestRepository;
 
 import java.util.List;
@@ -11,19 +15,31 @@ import java.util.List;
 public class RequestService implements IService<Request, Long> {
 
     private final RequestRepository requestRepository;
-
+    private final ProductRepository productRepository;
+    private static final Logger logger = LoggerFactory.getLogger(RequestService.class);
     @Autowired
-    public RequestService(RequestRepository requestRepository) {
+    public RequestService(RequestRepository requestRepository, ProductRepository productRepository) {
         this.requestRepository = requestRepository;
+        this.productRepository = productRepository;
     }
 
     @Override
     public Request create(Request request) {
-        // Ensure the product is set before saving
-        if (request.getProduct() == null) {
-            throw new IllegalArgumentException("Product must not be null");
+
+        logger.info("Incoming request: {}", request);
+        Product product = request.getProduct();
+        if (product == null || product.getProductId() == 0) {
+            logger.error("Product ID must be provided");
+            throw new IllegalArgumentException("Product ID must be provided");
         }
-        return requestRepository.save(request);
+        Product loadedProduct = productRepository.findById(product.getProductId())
+                .orElseThrow(() -> new IllegalArgumentException("Product not found"));
+        logger.info("Product found: {}", loadedProduct);
+        request.setProduct(loadedProduct);
+        Request savedRequest = requestRepository.save(request);
+        logger.info("Request saved: {}", savedRequest);
+
+        return savedRequest;
     }
 
     @Override
@@ -62,7 +78,7 @@ public class RequestService implements IService<Request, Long> {
         return requestRepository.findByProduct_ProductId(productId);
     }
 
-    // Uncomment if you need to delete requests by product ID
+    //wait
 //    public void deleteRequestsByProductId(Long productId) {
 //        requestRepository.deleteByProduct_ProductId(productId);
 //    }
