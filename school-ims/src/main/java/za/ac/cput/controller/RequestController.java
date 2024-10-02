@@ -1,5 +1,8 @@
 package za.ac.cput.controller;
 
+import jakarta.persistence.EntityNotFoundException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,6 +15,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/requests")
 public class RequestController {
+    private static final Logger logger = LoggerFactory.getLogger(RequestController.class);
 
     private final RequestService requestService;
 
@@ -66,10 +70,14 @@ public class RequestController {
         try {
             requestService.delete(id);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        } catch (Exception e) {
+        } catch (EntityNotFoundException e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            logger.error("Error deleting request with ID: " + id, e);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR); // 500 Internal Server Error
         }
     }
+
 
     @GetMapping("/getAll")
     public ResponseEntity<List<Request>> getAllRequests() {
