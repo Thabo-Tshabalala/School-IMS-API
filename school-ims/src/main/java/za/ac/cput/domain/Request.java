@@ -10,25 +10,30 @@ import java.util.Objects;
 public class Request implements Serializable {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO) // Changed to IDENTITY
+    @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "request_id")
     private long requestId;
 
     @ManyToOne
     @JoinColumn(name = "product_id", nullable = false)
-    private Product product; // Relationship with Product
+    private Product product;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
     @Column(nullable = true)
     private int quantity;
 
     @Column(nullable = true)
-    private String status; // eg 'Pending', 'Approved', 'Rejected'
+    private String status;
 
     protected Request() {}
 
     private Request(Builder builder) {
         this.requestId = builder.requestId;
         this.product = builder.product;
+        this.user = builder.user;
         this.quantity = builder.quantity;
         this.status = builder.status;
     }
@@ -39,6 +44,10 @@ public class Request implements Serializable {
 
     public Product getProduct() {
         return product;
+    }
+
+    public User getUser() {
+        return user;
     }
 
     public int getQuantity() {
@@ -56,6 +65,11 @@ public class Request implements Serializable {
 
     public Request setProduct(Product product) {
         this.product = product;
+        return this;
+    }
+
+    public Request setUser(User user) {
+        this.user = user;
         return this;
     }
 
@@ -77,12 +91,13 @@ public class Request implements Serializable {
         return requestId == request.requestId &&
                 quantity == request.quantity &&
                 Objects.equals(product, request.product) &&
+                Objects.equals(user, request.user) &&
                 Objects.equals(status, request.status);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(requestId, product, quantity, status);
+        return Objects.hash(requestId, product, user, quantity, status);
     }
 
     @Override
@@ -90,6 +105,7 @@ public class Request implements Serializable {
         return "Request{" +
                 "requestId=" + requestId +
                 ", product=" + product +
+                ", user=" + user +
                 ", quantity=" + quantity +
                 ", status='" + status + '\'' +
                 '}';
@@ -99,11 +115,17 @@ public class Request implements Serializable {
 
         private long requestId;
         private Product product;
+        private User user;
         private int quantity;
         private String status;
 
         public Builder setProduct(Product product) {
             this.product = product;
+            return this;
+        }
+
+        public Builder setUser(User user) {
+            this.user = user;
             return this;
         }
 
@@ -120,6 +142,7 @@ public class Request implements Serializable {
         public Builder copy(Request request) {
             this.requestId = request.requestId;
             this.product = request.product;
+            this.user = request.user;
             this.quantity = request.quantity;
             this.status = request.status;
             return this;
