@@ -1,14 +1,14 @@
 package za.ac.cput.service;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import za.ac.cput.domain.Product;
 import za.ac.cput.domain.Request;
+import za.ac.cput.domain.User;
 import za.ac.cput.repository.ProductRepository;
 import za.ac.cput.repository.RequestRepository;
-
+import za.ac.cput.repository.UserRepository;
 import java.util.List;
 import java.util.Optional;
 
@@ -17,16 +17,20 @@ public class RequestService implements IService<Request, Long> {
 
     private final RequestRepository requestRepository;
     private final ProductRepository productRepository;
+    private final UserRepository userRepository; // Add UserRepository
     private static final Logger logger = LoggerFactory.getLogger(RequestService.class);
+
     @Autowired
-    public RequestService(RequestRepository requestRepository, ProductRepository productRepository) {
+    public RequestService(RequestRepository requestRepository, ProductRepository productRepository, UserRepository userRepository) { // Inject UserRepository
         this.requestRepository = requestRepository;
         this.productRepository = productRepository;
+        this.userRepository = userRepository;
     }
 
     @Override
     public Request create(Request request) {
         logger.info("Incoming request: {}", request);
+
 
         Product product = request.getProduct();
         if (product == null || product.getProductId() == 0) {
@@ -34,24 +38,35 @@ public class RequestService implements IService<Request, Long> {
             throw new IllegalArgumentException("Product ID must be provided");
         }
 
+
         Product loadedProduct = productRepository.findById(product.getProductId())
                 .orElseThrow(() -> new IllegalArgumentException("Product not found"));
         logger.info("Product found: {}", loadedProduct);
+
 
         Optional<Request> alreadyRequested = requestRepository.findByProduct(loadedProduct);
         if (alreadyRequested.isPresent()) {
             logger.error("Product has already been requested: {}", loadedProduct);
             throw new IllegalArgumentException("Product has already been requested");
         }
+
+
+        User user = request.getUser();
+        if (user == null || user.getUserID() == 0) {
+            logger.error("User must be provided");
+            throw new IllegalArgumentException("User must be provided");
+        }
+
+
+        userRepository.findById(user.getUserID()).orElseThrow(() ->
+                new IllegalArgumentException("User not found"));
+
         request.setProduct(loadedProduct);
         Request savedRequest = requestRepository.save(request);
         logger.info("Request saved: {}", savedRequest);
 
         return savedRequest;
     }
-
-
-
 
     @Override
     public Request read(Long requestId) {
@@ -93,8 +108,8 @@ public class RequestService implements IService<Request, Long> {
         return requestRepository.findByProduct_ProductId(productId);
     }
 
-    //wait
-//    public void deleteRequestsByProductId(Long productId) {
-//        requestRepository.deleteByProduct_ProductId(productId);
-//    }
+    // Uncomment if needed
+    // public void deleteRequestsByProductId(Long productId) {
+    //     requestRepository.deleteByProduct_ProductId(productId);
+    // }
 }
