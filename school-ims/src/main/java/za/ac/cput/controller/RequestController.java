@@ -27,29 +27,19 @@ public class RequestController {
     @PostMapping("/create")
     public ResponseEntity<?> createRequest(@RequestBody Request request) {
         try {
-
-            boolean alreadyRequested = requestService.isProductAlreadyRequested(request.getProduct().getProductId());
-
-            if (alreadyRequested) {
-
-                return ResponseEntity.badRequest().body("Error: Product has already been requested.");
-            }
-
-
             Request createdRequest = requestService.create(request);
             return new ResponseEntity<>(createdRequest, HttpStatus.CREATED);
-
         } catch (IllegalArgumentException e) {
+
             System.err.println("Error creating request: " + e.getMessage());
             return ResponseEntity.badRequest().body("Error: " + e.getMessage());
-
         } catch (Exception e) {
+
             System.err.println("Unexpected error: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("An unexpected error occurred.");
         }
     }
-
 
 
     @GetMapping("/read/{id}")

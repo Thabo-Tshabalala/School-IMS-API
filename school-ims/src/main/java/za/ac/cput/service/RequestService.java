@@ -10,6 +10,7 @@ import za.ac.cput.repository.ProductRepository;
 import za.ac.cput.repository.RequestRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class RequestService implements IService<Request, Long> {
@@ -25,22 +26,32 @@ public class RequestService implements IService<Request, Long> {
 
     @Override
     public Request create(Request request) {
-
         logger.info("Incoming request: {}", request);
+
         Product product = request.getProduct();
         if (product == null || product.getProductId() == 0) {
             logger.error("Product ID must be provided");
             throw new IllegalArgumentException("Product ID must be provided");
         }
+
         Product loadedProduct = productRepository.findById(product.getProductId())
                 .orElseThrow(() -> new IllegalArgumentException("Product not found"));
         logger.info("Product found: {}", loadedProduct);
+
+        Optional<Request> alreadyRequested = requestRepository.findByProduct(loadedProduct);
+        if (alreadyRequested.isPresent()) {
+            logger.error("Product has already been requested: {}", loadedProduct);
+            throw new IllegalArgumentException("Product has already been requested");
+        }
         request.setProduct(loadedProduct);
         Request savedRequest = requestRepository.save(request);
         logger.info("Request saved: {}", savedRequest);
 
         return savedRequest;
     }
+
+
+
 
     @Override
     public Request read(Long requestId) {
