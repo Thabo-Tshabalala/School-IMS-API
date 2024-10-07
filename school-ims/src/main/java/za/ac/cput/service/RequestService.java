@@ -70,6 +70,10 @@ public class RequestService implements IService<Request, Long> {
         return requestRepository.findAll();
     }
 
+    public boolean isProductAlreadyRequested(Long productId) {
+        return requestRepository.existsById(productId);
+    }
+
     public List<Request> getRequestsByStatus(String status) {
         return requestRepository.findByStatus(status);
     }
