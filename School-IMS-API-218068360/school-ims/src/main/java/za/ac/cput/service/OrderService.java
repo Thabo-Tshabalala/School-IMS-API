@@ -51,4 +51,8 @@ public class OrderService implements IService<Order, Long> {
     public List<Order> getAll() {
         return orderRepository.findAll();
     }
+
+    public List<Order> getOrdersByUserId(Long userId) {
+        return orderRepository.findByUser_UserID(userId);
+    }
 }
