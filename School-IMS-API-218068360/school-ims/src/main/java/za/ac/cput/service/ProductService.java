@@ -3,18 +3,22 @@ package za.ac.cput.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import za.ac.cput.domain.Product;
+import za.ac.cput.domain.Order; // Ensure that this is the correct Order domain
 import za.ac.cput.repository.ProductRepository;
+import za.ac.cput.repository.OrderRepository; // Ensure that you have an OrderRepository
 
 import java.util.List;
 
 @Service
 public class ProductService implements IService<Product, Long>{
 
-
     private final ProductRepository productRepository;
+    private final OrderRepository orderRepository;
+
     @Autowired
-    public ProductService(ProductRepository productRepository) {
+    public ProductService(ProductRepository productRepository, OrderRepository orderRepository) {
         this.productRepository = productRepository;
+        this.orderRepository = orderRepository;
     }
 
     @Override
@@ -24,8 +28,7 @@ public class ProductService implements IService<Product, Long>{
 
     @Override
     public Product read(Long aLong) {
-        return productRepository.findById(aLong).orElseThrow(()-> new IllegalStateException("Product with " +
-                "Id " + aLong + " does not exist"));
+        return productRepository.findById(aLong).orElseThrow(() -> new IllegalStateException("Product with Id " + aLong + " does not exist"));
     }
 
     @Override
@@ -40,6 +43,11 @@ public class ProductService implements IService<Product, Long>{
     @Override
     public boolean delete(Long d) {
         if (productRepository.existsById(d)){
+            List<Order> orders = orderRepository.findByProduct_ProductId(d);
+            for (Order order : orders) {
+                orderRepository.delete(order);
+            }
+
             productRepository.deleteById(d);
             return true;
         } else {
