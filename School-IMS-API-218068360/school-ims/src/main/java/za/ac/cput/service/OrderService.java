@@ -3,9 +3,13 @@ package za.ac.cput.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import za.ac.cput.domain.Order;
+import za.ac.cput.domain.Product;
 import za.ac.cput.repository.OrderRepository;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class OrderService implements IService<Order, Long> {
@@ -55,4 +59,21 @@ public class OrderService implements IService<Order, Long> {
     public List<Order> getOrdersByUserId(Long userId) {
         return orderRepository.findByUser_UserID(userId);
     }
+
+    public List<Product> getMostOrderedProducts() {
+        List<Order> orders = orderRepository.findAll(); // Fetch all orders
+        Map<Product, Integer> productCount = new HashMap<>();
+
+        for (Order order : orders) {
+            Product product = order.getProduct();
+            productCount.put(product, productCount.getOrDefault(product, 0) + order.getQuantity());
+        }
+
+        // Create a list of products sorted by quantity ordered
+        return productCount.entrySet().stream()
+                .sorted(Map.Entry.<Product, Integer>comparingByValue().reversed())
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toList());
+    }
 }
+

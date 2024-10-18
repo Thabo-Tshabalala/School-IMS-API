@@ -174,6 +174,32 @@ public class OrderController {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+    @GetMapping("/most-ordered")
+    public ResponseEntity<List<Product>> getMostOrderedProducts() {
+        log.info("Received request to fetch most ordered products.");
+
+        try {
+            List<Product> mostOrderedProducts = orderService.getMostOrderedProducts();
+            log.info("Fetched {} most ordered products.", mostOrderedProducts.size());
+
+
+            for (Product product : mostOrderedProducts) {
+                log.info("Product ID: {}, Name: {}, Price: {}, Stock: {}, Description: {}",
+                        product.getProductId(),
+                        product.getName(),
+                        product.getPrice(),
+                        product.getStockQuantity(),
+                        product.getDescription());
+            }
+
+            return new ResponseEntity<>(mostOrderedProducts, HttpStatus.OK);
+        } catch (Exception e) {
+            log.error("Error fetching most ordered products: ", e);
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
 
 
 }
