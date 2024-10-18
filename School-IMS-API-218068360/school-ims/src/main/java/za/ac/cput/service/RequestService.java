@@ -108,6 +108,10 @@ public class RequestService implements IService<Request, Long> {
         return requestRepository.findByProduct_ProductId(productId);
     }
 
+    public long getPendingRequestCount() {
+        return requestRepository.countByStatus("Pending");
+    }
+
     // Uncomment if needed
     // public void deleteRequestsByProductId(Long productId) {
     //     requestRepository.deleteByProduct_ProductId(productId);

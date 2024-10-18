@@ -74,7 +74,7 @@ public class RequestController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } catch (Exception e) {
             logger.error("Error deleting request with ID: " + id, e);
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR); // 500 Internal Server Error
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -98,4 +98,10 @@ public class RequestController {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+    @GetMapping("/notificationCount")
+    public ResponseEntity<Long> getNotificationCount() {
+        long count = requestService.getPendingRequestCount();
+        return new ResponseEntity<>(count, HttpStatus.OK);
+    }
+
 }

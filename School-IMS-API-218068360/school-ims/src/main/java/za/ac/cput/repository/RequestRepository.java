@@ -11,7 +11,7 @@ public interface RequestRepository extends JpaRepository<Request, Long> {
 
 
     List<Request> findByStatus(String status);
-
+    long countByStatus(String status);
     List<Request> findByProduct_ProductId(Long productId);
     Optional<Request> findByProduct(Product product);
     void deleteByProduct_ProductId(Long productId);
